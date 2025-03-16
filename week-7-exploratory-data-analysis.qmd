@@ -43,10 +43,10 @@ Complete the code below to extract the rows where `name == "Lincoln"`. Then use 
 ```{r}
 #| label: popularity-lincoln
 
-babynames ___ 
-  filter(_______________________) ___
-  ___________(total = ________, 
-              first = _______)
+babynames |> 
+  filter(name == "Lincoln") |>
+  summarise(total = sum(n), 
+              first = min(year))
 ```
 
 
@@ -145,10 +145,21 @@ Use `group_by()`, `summarise()`, and `arrange()` to display the ten most popular
 #| label: top-10-names
 
 babynames |> 
-  _______(name, sex) |>  
-  _______(total = _____(n)) |> 
-  _______(desc(_____)) |> 
-  head(10)
+  filter(year >= 2005) |>
+  group_by(name, sex) |>  
+  summarise(total = sum(n)) |> 
+  arrange(desc(total)) |> 
+  head(10) |> 
+  ggplot(aes(x = fct_reorder(name, desc(total)),
+             y = total,
+             fill = sex)) +
+geom_col() +
+  scale_fill_brewer() +
+  theme_light() +
+  labs(x = "Top 10 Popular Names in Top 500 in US",
+       y = "Total Number of Infants Born in Top 500",
+       fill = "Sex",
+       title = "Names Since 2005")
 ```
 
 
@@ -187,8 +198,8 @@ Rank each name _within its year and sex_.
 
 babynames |> 
   select(name, year, sex, prop) |> 
-  group_by(____, ____) |> 
-  ______(rank = min_rank(____(prop))) |> 
+  group_by(sex, year) |> 
+  mutate(rank = min_rank(desc(prop))) |> 
   arrange(year, sex, rank)
 ```
 
